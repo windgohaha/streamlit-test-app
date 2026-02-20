@@ -1,14 +1,14 @@
 
-# 核心应用包
+
 streamlit==1.36.0
-# 数据处理包
+
 pandas==2.2.2
 numpy==1.26.4
-# 统计分析包
+
 statsmodels==0.14.2
-scipy==1.13.0
-# 可视化包
+scipy==1.13.0 --only-binary=:all:
+
 matplotlib==3.9.0
 seaborn==0.13.2
-# Excel导出依赖
+
 openpyxl==3.1.5
