@@ -1,15 +1,15 @@
-# ========== 核心修复：移除冲突的启动逻辑 + 强制渲染修复 + 中文字体配置 ==========
+# ========== 核心修复：彻底解决中文乱码 ==========
 import matplotlib
 matplotlib.use('Agg')  # 强制使用非交互式后端，修复图表渲染
 import warnings
 warnings.filterwarnings('ignore')  # 屏蔽无关警告
 
-# ========== 新增：自动下载中文字体（解决Streamlit Cloud中文乱码） ==========
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import urllib.request
 import tempfile
 import os
+import seaborn as sns
 
 def setup_chinese_font():
     try:
@@ -19,21 +19,26 @@ def setup_chinese_font():
             urllib.request.urlretrieve(font_url, tmp_file.name)
             font_path = tmp_file.name
         
-        # 注册并设置字体
+        # 注册字体
         font_prop = fm.FontProperties(fname=font_path)
         fm.fontManager.addfont(font_path)
+        
+        # 统一设置 matplotlib 和 seaborn 的字体
         plt.rcParams["font.family"] = font_prop.get_name()
         plt.rcParams["font.sans-serif"] = [font_prop.get_name()]
-        plt.rcParams["axes.unicode_minus"] = False  # 解决负号显示方块
+        plt.rcParams["axes.unicode_minus"] = False  # 解决负号显示问题
+        sns.set(font=font_prop.get_name())  # 强制 seaborn 使用相同字体
         
         # 清理临时文件
         os.unlink(font_path)
     except Exception as e:
-        # 备用方案：兼容系统字体
+        # 备用方案
         plt.rcParams["font.family"] = ["DejaVu Sans", "sans-serif"]
         plt.rcParams["axes.unicode_minus"] = False
+        sns.set(font="DejaVu Sans")
+        print(f"字体配置备用方案生效: {e}")
 
-# 执行字体配置（必须放在所有绘图代码前）
+# 执行字体配置（必须放在所有绘图代码之前）
 setup_chinese_font()
 
 # ========== 基础库导入 ==========
