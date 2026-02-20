@@ -1,14 +1,10 @@
+streamlit
+pandas
+numpy
+statsmodels
+scipy
 
+matplotlib
+seaborn
 
-streamlit==1.36.0
-
-pandas==2.2.2
-numpy==1.26.4
-
-statsmodels==0.14.2
-scipy==1.13.0 --only-binary=:all:
-
-matplotlib==3.9.0 --only-binary=:all:
-seaborn==0.13.2
-
-openpyxl==3.1.5
+openpyxl
