@@ -1,8 +1,40 @@
-# ========== 核心修复：移除冲突的启动逻辑 + 强制渲染修复 ==========
+# ========== 核心修复：移除冲突的启动逻辑 + 强制渲染修复 + 中文字体配置 ==========
 import matplotlib
 matplotlib.use('Agg')  # 强制使用非交互式后端，修复图表渲染
 import warnings
 warnings.filterwarnings('ignore')  # 屏蔽无关警告
+
+# ========== 新增：自动下载中文字体（解决Streamlit Cloud中文乱码） ==========
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import urllib.request
+import tempfile
+import os
+
+def setup_chinese_font():
+    try:
+        # 下载开源文泉驿微米黑字体（无版权、跨平台兼容）
+        font_url = "https://github.com/google/fonts/raw/main/ofl/wenquanyimicrohei/WenQuanYiMicroHei.ttf"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".ttf") as tmp_file:
+            urllib.request.urlretrieve(font_url, tmp_file.name)
+            font_path = tmp_file.name
+        
+        # 注册并设置字体
+        font_prop = fm.FontProperties(fname=font_path)
+        fm.fontManager.addfont(font_path)
+        plt.rcParams["font.family"] = font_prop.get_name()
+        plt.rcParams["font.sans-serif"] = [font_prop.get_name()]
+        plt.rcParams["axes.unicode_minus"] = False  # 解决负号显示方块
+        
+        # 清理临时文件
+        os.unlink(font_path)
+    except Exception as e:
+        # 备用方案：兼容系统字体
+        plt.rcParams["font.family"] = ["DejaVu Sans", "sans-serif"]
+        plt.rcParams["axes.unicode_minus"] = False
+
+# 执行字体配置（必须放在所有绘图代码前）
+setup_chinese_font()
 
 # ========== 基础库导入 ==========
 import streamlit as st
@@ -10,14 +42,10 @@ import pandas as pd
 import numpy as np
 import statsmodels.formula.api as smf
 import seaborn as sns
-import matplotlib.pyplot as plt
 from scipy import stats
-from io import BytesIO  # 新增：用于Excel导出
+from io import BytesIO  # 用于Excel导出
 
 # ========== 全局设置 ==========
-# 解决中文显示问题
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
 # 统一配色方案
 COLOR_PALETTE = {
     "primary": "#1f77b4",
