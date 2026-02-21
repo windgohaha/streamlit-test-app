@@ -13,30 +13,33 @@ import seaborn as sns
 
 def setup_chinese_font():
     try:
-        # 下载开源文泉驿微米黑字体（无版权、跨平台兼容）
-        font_url = "https://github.com/google/fonts/raw/main/ofl/wenquanyimicrohei/WenQuanYiMicroHei.ttf"
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".ttf") as tmp_file:
-            urllib.request.urlretrieve(font_url, tmp_file.name)
-            font_path = tmp_file.name
+        # 从项目本地 fonts 文件夹读取思源黑体（关键修改）
+        current_dir = os.path.dirname(__file__)
+        font_path = os.path.join(current_dir, 'fonts', 'SourceHanSansSC-Regular.otf')
         
-        # 注册字体
+        # 检查字体文件是否存在（方便排查问题）
+        if not os.path.exists(font_path):
+            raise FileNotFoundError(f"字体文件不存在：{font_path}")
+        
+        # 注册并设置字体
         font_prop = fm.FontProperties(fname=font_path)
         fm.fontManager.addfont(font_path)
         
-        # 统一设置 matplotlib 和 seaborn 的字体
+        # 全局设置 matplotlib 和 seaborn 字体
         plt.rcParams["font.family"] = font_prop.get_name()
         plt.rcParams["font.sans-serif"] = [font_prop.get_name()]
         plt.rcParams["axes.unicode_minus"] = False  # 解决负号显示问题
-        sns.set(font=font_prop.get_name())  # 强制 seaborn 使用相同字体
+        sns.set(font=font_prop.get_name())
         
-        # 清理临时文件
-        os.unlink(font_path)
+        # 调试信息（部署后可保留，方便排查）
+        print(f"✅ 成功加载中文字体：{font_prop.get_name()}")
+        
     except Exception as e:
-        # 备用方案
+        # 备用方案（防止字体加载失败）
         plt.rcParams["font.family"] = ["DejaVu Sans", "sans-serif"]
         plt.rcParams["axes.unicode_minus"] = False
         sns.set(font="DejaVu Sans")
-        print(f"字体配置备用方案生效: {e}")
+        print(f"⚠️ 字体加载失败，启用备用方案：{e}")
 
 # 执行字体配置（必须放在所有绘图代码之前）
 setup_chinese_font()
